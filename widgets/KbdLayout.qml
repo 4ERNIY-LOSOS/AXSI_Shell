@@ -24,14 +24,13 @@ Text {
     id: initProcess
     command: ["hyprctl", "devices", "-j"]
     running: true
-    stdout: DataStream {
-      onRead: {
+    stdout: StdioCollector {
+      id: collector
+      onStreamFinished: {
         try {
-          const devices = JSON.parse(text);
+          const devices = JSON.parse(collector.text);
           const keyboards = devices.keyboards;
           if (keyboards && keyboards.length > 0) {
-            // Try to find the keyboard that has the active keymap
-            // or just take the first one for now.
             layoutText.text = keyboards[0].active_keymap.substring(0, 2).toUpperCase();
           }
         } catch (e) {
