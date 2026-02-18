@@ -18,7 +18,6 @@ Row {
       IconImage {
         anchors.fill: parent
         source: modelData.icon
-        fillMode: Image.PreserveAspectFit
       }
 
       TapHandler {
