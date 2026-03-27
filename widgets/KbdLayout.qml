@@ -1,0 +1,42 @@
+import QtQuick
+import Quickshell
+import Quickshell.Hyprland
+import Quickshell.Io
+
+Text {
+  id: layoutText
+  color: "white"
+  text: ".."
+
+  Connections {
+    target: Hyprland
+    function onRawEvent(event) {
+      if (event.name === "activelayout") {
+        const parts = event.data.split(",");
+        if (parts.length > 1) {
+          layoutText.text = parts[1].substring(0, 2).toUpperCase();
+        }
+      }
+    }
+  }
+
+  Process {
+    id: initProcess
+    command: ["hyprctl", "devices", "-j"]
+    running: true
+    stdout: StdioCollector {
+      id: collector
+      onStreamFinished: {
+        try {
+          const devices = JSON.parse(collector.text);
+          const keyboards = devices.keyboards;
+          if (keyboards && keyboards.length > 0) {
+            layoutText.text = keyboards[0].active_keymap.substring(0, 2).toUpperCase();
+          }
+        } catch (e) {
+          console.log("Error parsing hyprctl output: " + e);
+        }
+      }
+    }
+  }
+}
